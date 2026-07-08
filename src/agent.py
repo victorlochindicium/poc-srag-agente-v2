@@ -110,7 +110,7 @@ def executar_agente():
     if not api_key:
         raise ValueError("Chave GOOGLE_API_KEY não encontrada nas variáveis de ambiente.")
 
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0)
+    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0)
     ferramentas = [gerar_graficos_srag, extrair_metricas_srag, buscar_noticias_recentes]
 
     # Guardrails dinâmicos: Injetamos a data atual para evitar alucinação
