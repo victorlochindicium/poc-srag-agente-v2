@@ -1,0 +1,16 @@
+# Ignorar arquivos pesados de dados e bancos locais
+*.csv
+*.db
+
+# Ignorar imagens geradas temporariamente
+*.png
+*.jpg
+
+# Ignorar senhas e variáveis de ambiente
+.env
+
+# Ignorar pastas virtuais do Python e logs
+venv/
+__pycache__/
+*.log
+.ipynb_checkpoints/
