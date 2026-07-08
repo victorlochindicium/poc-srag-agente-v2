@@ -7,6 +7,7 @@ import sqlite3
 import pandas as pd
 import matplotlib.pyplot as plt
 import logging
+import warnings
 from datetime import datetime
 from langchain_core.tools import tool
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -14,8 +15,10 @@ from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import HumanMessage
 from langchain_community.tools import DuckDuckGoSearchRun
 
+# Ignorar o UserWarning chato do Pandas na hora de gerar os gráficos
+warnings.filterwarnings("ignore", category=UserWarning)
+
 # 1. Configuração de Auditoria Profissional (Logging)
-# Em vez de prints genéricos, criamos um log auditável com timestamp
 logging.basicConfig(
     filename='auditoria.log',
     level=logging.INFO,
@@ -121,7 +124,7 @@ def executar_agente():
     REGRAS (Guardrails):
     1. Use as ferramentas disponíveis para coletar dados, buscar notícias e gerar gráficos antes de responder.
     2. Nunca invente dados médicos. Responda APENAS sobre saúde e SRAG.
-    3. Retorne APENAS o relatório formatado, sem estruturas de dicionário Python."""
+    3. Retorne APENAS o relatório formatado, sem estruturas de dicionário Python ou JSON."""
 
     agente = create_react_agent(llm, ferramentas, prompt=prompt_sistema)
     
@@ -132,7 +135,14 @@ def executar_agente():
     resultado_final = agente.invoke({"messages": [HumanMessage(content=mensagem)]})
     
     # Tratando o Output para exibir apenas o texto limpo (exigência do feedback)
-    texto_relatorio = resultado_final["messages"][-1].content
+    conteudo = resultado_final["messages"][-1].content
+    
+    # Se o modelo retornar uma lista/dicionário, extraímos só o texto puro
+    if isinstance(conteudo, list) and len(conteudo) > 0 and isinstance(conteudo[0], dict):
+        texto_relatorio = conteudo[0].get("text", str(conteudo))
+    else:
+        texto_relatorio = str(conteudo)
+        
     logging.info("Relatório gerado com sucesso e orquestração finalizada.")
     
     return texto_relatorio
